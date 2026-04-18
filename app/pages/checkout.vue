@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { storeToRefs } from 'pinia'
+import type { SubscriptionPlan } from '~/stores/useSubscriptionStore'
+
 interface CheckoutFeature {
   text: string
   extra?: string
@@ -29,8 +32,33 @@ interface CheckoutResponse {
 }
 
 const { data, pending, error } = await useFetch<CheckoutResponse>('/api/subscription/checkout')
+const subscriptionStore = useSubscriptionStore()
+const { selectedSubscription, hasSelectedSubscription } = storeToRefs(subscriptionStore)
 
 const pageTitle = computed(() => data.value?.pageTitle || 'Checkout')
+const fallbackPlan = computed<SubscriptionPlan | null>(() => {
+  if (!data.value) return null
+
+  return {
+    title: data.value.plan.title,
+    monthlyPrice: data.value.plan.monthlyPrice,
+    oldBilledPrice: data.value.plan.oldBilledPrice,
+    billedPrice: data.value.plan.billedPrice,
+    savings: data.value.plan.savings,
+    trialLabel: data.value.plan.trialLabel,
+    billedText: data.value.plan.billedText,
+    features: data.value.plan.features
+  }
+})
+
+const activePlan = computed(() => {
+  return selectedSubscription.value || fallbackPlan.value
+})
+
+const annualPrice = computed(() => {
+  if (!activePlan.value) return '$0.00'
+  return `$${activePlan.value.billedPrice}.00`
+})
 
 useHead(() => ({
   title: pageTitle.value
@@ -101,7 +129,7 @@ const submitForm = async () => {
 
     <UContainer class="mx-auto max-w-6xl py-8">
       <NuxtLink
-        to="/"
+        to="/products"
         class="inline-block text-sm text-neutral-500 transition-colors hover:text-neutral-800"
       >
         &lt;&lt; back
@@ -121,7 +149,7 @@ const submitForm = async () => {
         Failed to load checkout data.
       </div>
 
-      <template v-else>
+      <template v-else-if="activePlan">
         <h1 class="mt-5 text-4xl font-extrabold text-neutral-900 md:text-5xl">
           {{ data.heading }}
         </h1>
@@ -132,22 +160,22 @@ const submitForm = async () => {
         <div class="mt-8 grid grid-cols-1 gap-6 xl:grid-cols-12">
           <UCard class="checkout-card lg:max-w-none xl:col-span-4 border-t-[3px] border-cyan-400">
             <h2 class="text-3xl font-bold text-neutral-900">
-              {{ data.plan.title }}
+              {{ activePlan.title }}
             </h2>
 
             <p class="mt-4 inline-block rounded bg-neutral-200 px-2 py-1 text-xs text-neutral-600">
-              {{ data.plan.trialLabel }}
+              {{ activePlan.trialLabel || '3-days free then:' }}
             </p>
 
             <div class="mt-3 flex items-end gap-1">
-              <span class="text-5xl font-extrabold leading-none text-neutral-900">${{ data.plan.monthlyPrice }}</span>
+              <span class="text-5xl font-extrabold leading-none text-neutral-900">${{ activePlan.monthlyPrice }}</span>
               <span class="mb-1 text-base text-neutral-500">/month</span>
             </div>
 
             <p class="mt-2 text-base text-neutral-600">
-              {{ data.plan.billedText }}
-              <span class="line-through">${{ data.plan.oldBilledPrice }}</span>
-              ${{ data.plan.billedPrice }}
+              {{ activePlan.billedText || 'billed yearly at' }}
+              <span class="line-through">${{ activePlan.oldBilledPrice }}</span>
+              ${{ activePlan.billedPrice }}
             </p>
 
             <UBadge
@@ -155,12 +183,12 @@ const submitForm = async () => {
               variant="soft"
               class="mt-4 text-sm"
             >
-              ${{ data.plan.savings }} in savings
+              ${{ activePlan.savings }} in savings
             </UBadge>
 
             <ul class="mt-6 space-y-2 border-t border-neutral-200 pt-5">
               <li
-                v-for="feature in data.plan.features"
+                v-for="feature in activePlan.features"
                 :key="feature.text"
                 class="feature-item flex gap-2 rounded-md px-1 py-1 text-base text-neutral-700"
               >
@@ -186,11 +214,11 @@ const submitForm = async () => {
             <div class="mt-5 space-y-2 text-base text-neutral-700">
               <div class="flex items-center justify-between">
                 <span>{{ data.summary.planLabel }}</span>
-                <span>{{ data.summary.annualPrice }}</span>
+                <span>{{ annualPrice }}</span>
               </div>
               <div class="flex items-start justify-between gap-3">
                 <span class="max-w-[75%] text-sm">{{ data.summary.totalDueLabel }}</span>
-                <span>{{ data.summary.annualPrice }}</span>
+                <span>{{ annualPrice }}</span>
               </div>
               <div class="flex justify-between border-t border-neutral-200 pt-2 font-bold text-neutral-900">
                 <span>Due Today</span>
@@ -201,6 +229,12 @@ const submitForm = async () => {
             <div class="mt-4 bg-neutral-100 px-4 py-3 text-center text-base text-neutral-700">
               {{ data.summary.trialNotice }}
             </div>
+            <p
+              v-if="hasSelectedSubscription"
+              class="mt-3 text-sm text-emerald-700"
+            >
+              Selected plan is loaded from Pinia store.
+            </p>
 
             <h3 class="mt-6 text-3xl font-semibold text-neutral-900">
               Billing Information
@@ -284,6 +318,13 @@ const submitForm = async () => {
           </UCard>
         </div>
       </template>
+
+      <div
+        v-else
+        class="mt-6 text-red-600"
+      >
+        Plan data is unavailable.
+      </div>
     </UContainer>
   </div>
 </template>

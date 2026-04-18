@@ -2,7 +2,7 @@
 import { h, resolveComponent } from 'vue'
 import type { Column } from '@tanstack/vue-table'
 
-useHead({ title: 'Таблиця' })
+useHead({ title: 'Table' })
 
 interface Product {
   id?: number
@@ -44,13 +44,13 @@ const sortableHeader = (label: string) => {
 }
 
 const columns = [
-  { accessorKey: 'thumbnail', header: 'Фото' }, // Фото сортувати не треба
-  { accessorKey: 'title', header: sortableHeader('Назва') },
-  { accessorKey: 'description', header: sortableHeader('Опис') },
-  { accessorKey: 'price', header: sortableHeader('Ціна') },
-  { accessorKey: 'rating', header: sortableHeader('Оцінка') },
-  { accessorKey: 'brand', header: sortableHeader('Бренд') },
-  { accessorKey: 'category', header: sortableHeader('Категорія') }
+  { accessorKey: 'thumbnail', header: 'Photo' },
+  { accessorKey: 'title', header: sortableHeader('Title') },
+  { accessorKey: 'description', header: sortableHeader('Description') },
+  { accessorKey: 'price', header: sortableHeader('Price') },
+  { accessorKey: 'rating', header: sortableHeader('Rating') },
+  { accessorKey: 'brand', header: sortableHeader('Brand') },
+  { accessorKey: 'category', header: sortableHeader('Category') }
 ]
 
 const q = ref('')
@@ -110,7 +110,7 @@ watch(q, () => {
   <UContainer class="py-10 max-w-7xl">
     <div class="flex justify-between items-center mb-6">
       <h1 class="text-2xl font-bold">
-        Таблиця
+        Table
       </h1>
       <UButton
         to="/"
@@ -118,7 +118,7 @@ watch(q, () => {
         variant="ghost"
         icon="i-heroicons-arrow-left"
       >
-        На головну
+        Back to home
       </UButton>
     </div>
 
@@ -129,7 +129,7 @@ watch(q, () => {
       <div class="w-72">
         <UInput
           v-model="q"
-          placeholder="Пошук..."
+          placeholder="Search..."
           icon="i-heroicons-magnifying-glass-20-solid"
         />
       </div>

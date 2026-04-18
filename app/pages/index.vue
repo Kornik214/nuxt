@@ -84,6 +84,13 @@ const handleSelect = (planName: string) => {
     <div class="text-center mb-12">
       <div class="mb-6 flex justify-center gap-3">
         <UButton
+          to="/products"
+          color="success"
+          icon="i-heroicons-squares-2x2"
+        >
+          Products
+        </UButton>
+        <UButton
           to="/checkout"
           color="primary"
           icon="i-heroicons-credit-card"
@@ -97,6 +104,14 @@ const handleSelect = (planName: string) => {
           icon="i-heroicons-table-cells"
         >
           Table
+        </UButton>
+        <UButton
+          to="/store"
+          color="neutral"
+          variant="outline"
+          icon="i-heroicons-user-circle"
+        >
+          Store Demo
         </UButton>
       </div>
       <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">

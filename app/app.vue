@@ -1,4 +1,3 @@
-@ -1,78 +1,7 @@
 <script setup>
 useHead({
   meta: [
@@ -60,7 +59,7 @@ useSeoMeta({
     <UFooter>
       <template #left>
         <p class="text-sm text-muted">
-          Built with Nuxt UI • © {{ new Date().getFullYear() }}
+          Built with Nuxt UI - (c) {{ new Date().getFullYear() }}
         </p>
       </template>
 
