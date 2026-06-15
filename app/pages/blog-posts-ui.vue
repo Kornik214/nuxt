@@ -148,7 +148,7 @@ watch(page, refreshTable)
 
         <template #title-cell="{ row }">
           <NuxtLink
-            :to="'/admin/blog/posts/' + row.original.id + '/edit'"
+            :to="'/blog-posts/' + row.original.id"
             class="text-green-600 hover:underline dark:text-green-400"
           >
             {{ row.original?.title }}

@@ -112,7 +112,7 @@ const posts = computed(() => data.value?.data ?? [])
               {{ post.category?.title }}
             </td>
             <td class="px-4 py-3 text-sm text-green-700 dark:text-green-400">
-              <NuxtLink :to="'/admin/blog/posts/' + post.id + '/edit'">
+              <NuxtLink :to="'/blog-posts/' + post.id">
                 {{ post.title }}
               </NuxtLink>
             </td>
