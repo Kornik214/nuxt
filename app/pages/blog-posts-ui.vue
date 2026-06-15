@@ -97,10 +97,20 @@ watch(page, refreshTable)
       </div>
 
       <div class="flex flex-wrap gap-2">
-        <UButton to="/blog-posts" color="neutral" variant="soft" icon="i-heroicons-table-cells">
+        <UButton
+          to="/blog-posts"
+          color="neutral"
+          variant="soft"
+          icon="i-heroicons-table-cells"
+        >
           HTML Table
         </UButton>
-        <UButton to="/" color="neutral" variant="ghost" icon="i-heroicons-home">
+        <UButton
+          to="/"
+          color="neutral"
+          variant="ghost"
+          icon="i-heroicons-home"
+        >
           Home
         </UButton>
       </div>
@@ -172,4 +182,3 @@ watch(page, refreshTable)
     </UCard>
   </UContainer>
 </template>
-

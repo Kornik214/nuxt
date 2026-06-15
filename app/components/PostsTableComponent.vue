@@ -125,4 +125,3 @@ const posts = computed(() => data.value?.data ?? [])
     </div>
   </div>
 </template>
-
