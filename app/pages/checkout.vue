@@ -128,12 +128,39 @@ const submitForm = async () => {
     </header>
 
     <UContainer class="mx-auto max-w-6xl py-8">
-      <NuxtLink
-        to="/products"
-        class="inline-block text-sm text-neutral-500 transition-colors hover:text-neutral-800"
-      >
-        &lt;&lt; back
-      </NuxtLink>
+      <div class="mb-3 flex flex-wrap gap-2">
+        <UButton
+          to="/"
+          color="neutral"
+          variant="soft"
+          icon="i-heroicons-home"
+        >
+          Home
+        </UButton>
+        <UButton
+          to="/checkout"
+          color="primary"
+          icon="i-heroicons-credit-card"
+        >
+          Checkout
+        </UButton>
+        <UButton
+          to="/table"
+          color="neutral"
+          variant="outline"
+          icon="i-heroicons-table-cells"
+        >
+          Table
+        </UButton>
+        <UButton
+          to="/store"
+          color="neutral"
+          variant="ghost"
+          icon="i-heroicons-user-circle"
+        >
+          Store Demo
+        </UButton>
+      </div>
 
       <div
         v-if="pending"

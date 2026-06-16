@@ -18,6 +18,40 @@ const handleLogin = () => {
 
 <template>
   <div class="mx-auto max-w-3xl p-8">
+    <div class="mb-6 flex flex-wrap gap-2">
+      <UButton
+        to="/"
+        color="neutral"
+        variant="soft"
+        icon="i-heroicons-home"
+      >
+        Home
+      </UButton>
+      <UButton
+        to="/checkout"
+        color="primary"
+        icon="i-heroicons-credit-card"
+      >
+        Checkout
+      </UButton>
+      <UButton
+        to="/table"
+        color="neutral"
+        variant="outline"
+        icon="i-heroicons-table-cells"
+      >
+        Table
+      </UButton>
+      <UButton
+        to="/store"
+        color="neutral"
+        variant="ghost"
+        icon="i-heroicons-user-circle"
+      >
+        Store Demo
+      </UButton>
+    </div>
+
     <h1 class="text-3xl font-bold">
       {{ welcomeMessage }}
     </h1>

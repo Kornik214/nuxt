@@ -1,26 +1,43 @@
 <script setup lang="ts">
-// Стан для вибору періоду (річний/місячний)
-const isAnnual = ref(true)
-// Стан для вибраного плану
-const selectedPlan = ref<string | null>(null)
+import { storeToRefs } from 'pinia'
 
-interface PricingPlan {
-  name: string
+interface PlanBilling {
   price: number
   oldPrice: number
   finalPrice: number
   savings: number
+  billedText: string
+}
+
+interface PricingPlan {
+  name: string
+  annual: PlanBilling
+  monthly: PlanBilling
   features: string[]
   color: string
 }
 
+const isAnnual = ref(true)
+const subscriptionStore = useSubscriptionStore()
+const { selectedSubscription } = storeToRefs(subscriptionStore)
+
 const plans: PricingPlan[] = [
   {
     name: 'Starter',
-    price: 83.25,
-    oldPrice: 1188,
-    finalPrice: 999,
-    savings: 189,
+    annual: {
+      price: 83.25,
+      oldPrice: 1188,
+      finalPrice: 999,
+      savings: 189,
+      billedText: 'billed yearly at'
+    },
+    monthly: {
+      price: 99,
+      oldPrice: 99,
+      finalPrice: 99,
+      savings: 0,
+      billedText: 'billed monthly at'
+    },
     features: [
       'Primary user only',
       'Save unlimited properties',
@@ -36,10 +53,20 @@ const plans: PricingPlan[] = [
   },
   {
     name: 'Team',
-    price: 207.50,
-    oldPrice: 2988,
-    finalPrice: 2490,
-    savings: 498,
+    annual: {
+      price: 207.5,
+      oldPrice: 2988,
+      finalPrice: 2490,
+      savings: 498,
+      billedText: 'billed yearly at'
+    },
+    monthly: {
+      price: 249,
+      oldPrice: 249,
+      finalPrice: 249,
+      savings: 0,
+      billedText: 'billed monthly at'
+    },
     features: [
       'Primary user + 2 free team members',
       'Save unlimited properties',
@@ -55,10 +82,20 @@ const plans: PricingPlan[] = [
   },
   {
     name: 'Business',
-    price: 457.50,
-    oldPrice: 6588,
-    finalPrice: 5490,
-    savings: 1098,
+    annual: {
+      price: 457.5,
+      oldPrice: 6588,
+      finalPrice: 5490,
+      savings: 1098,
+      billedText: 'billed yearly at'
+    },
+    monthly: {
+      price: 549,
+      oldPrice: 549,
+      finalPrice: 549,
+      savings: 0,
+      billedText: 'billed monthly at'
+    },
     features: [
       'Primary user + 6 free team members',
       'Save unlimited properties',
@@ -74,8 +111,38 @@ const plans: PricingPlan[] = [
   }
 ]
 
-const handleSelect = (planName: string) => {
-  selectedPlan.value = planName
+const displayedPlans = computed(() => {
+  return plans.map((plan) => {
+    const billing = isAnnual.value ? plan.annual : plan.monthly
+
+    return {
+      ...plan,
+      periodLabel: isAnnual.value ? 'Annual' : 'Monthly',
+      ...billing
+    }
+  })
+})
+
+const toStorePrice = (value: number) => value.toFixed(2)
+
+const isPlanSelected = (plan: (typeof displayedPlans.value)[number]) => {
+  return selectedSubscription.value?.title === plan.name
+    && selectedSubscription.value?.billedText === plan.billedText
+}
+
+const handleSelect = async (plan: (typeof displayedPlans.value)[number]) => {
+  subscriptionStore.setSubscription({
+    title: plan.name,
+    monthlyPrice: toStorePrice(plan.price),
+    oldBilledPrice: String(plan.oldPrice),
+    billedPrice: String(plan.finalPrice),
+    savings: String(plan.savings),
+    trialLabel: '3-days free then:',
+    billedText: plan.billedText,
+    features: plan.features.map(text => ({ text }))
+  })
+
+  await navigateTo('/checkout')
 }
 </script>
 
@@ -83,13 +150,6 @@ const handleSelect = (planName: string) => {
   <UContainer class="py-16">
     <div class="text-center mb-12">
       <div class="mb-6 flex justify-center gap-3">
-        <UButton
-          to="/products"
-          color="success"
-          icon="i-heroicons-squares-2x2"
-        >
-          Products
-        </UButton>
         <UButton
           to="/checkout"
           color="primary"
@@ -141,7 +201,7 @@ const handleSelect = (planName: string) => {
     </div>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
       <UCard
-        v-for="plan in plans"
+        v-for="plan in displayedPlans"
         :key="plan.name"
         :class="[
           plan.color,
@@ -150,7 +210,7 @@ const handleSelect = (planName: string) => {
       >
         <div class="mb-6">
           <h2 class="text-xl font-bold mb-4">
-            {{ plan.name }} - Annual
+            {{ plan.name }} - {{ plan.periodLabel }}
           </h2>
           <div class="text-xs text-gray-400 uppercase font-bold mb-2">
             3-days free then:
@@ -164,7 +224,7 @@ const handleSelect = (planName: string) => {
             </span>
           </div>
           <div class="text-sm text-gray-400 mt-2">
-            billed yearly at
+            {{ plan.billedText }}
             <span class="line-through">
               ${{ plan.oldPrice }}
             </span>
@@ -173,6 +233,7 @@ const handleSelect = (planName: string) => {
             </span>
           </div>
           <UBadge
+            v-if="plan.savings > 0"
             color="success"
             variant="subtle"
             class="mt-3 font-bold"
@@ -183,12 +244,12 @@ const handleSelect = (planName: string) => {
         <UButton
           block
           size="lg"
-          :color="selectedPlan === plan.name ? 'neutral' : 'warning'"
-          :variant="selectedPlan === plan.name ? 'soft' : 'solid'"
+          :color="isPlanSelected(plan) ? 'neutral' : 'warning'"
+          :variant="isPlanSelected(plan) ? 'soft' : 'solid'"
           class="font-bold py-3 mb-8"
-          @click="handleSelect(plan.name)"
+          @click="handleSelect(plan)"
         >
-          {{ selectedPlan === plan.name ? 'Selected' : 'Try It Free' }}
+          {{ isPlanSelected(plan) ? 'Selected' : 'Try It Free' }}
         </UButton>
         <ul class="space-y-3">
           <li

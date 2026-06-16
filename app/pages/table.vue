@@ -56,6 +56,8 @@ const columns = [
 const q = ref('')
 const page = ref(1)
 const pageCount = ref(5)
+const pageSizeOptions = [5, 10, 20, 50]
+const normalizedPageCount = computed(() => Number(pageCount.value) || 5)
 
 const rowSelection = ref<Record<string, boolean>>({})
 
@@ -96,30 +98,59 @@ const sortedRows = computed(() => {
 })
 
 const paginatedRows = computed(() => {
-  const start = (page.value - 1) * pageCount.value
-  const end = page.value * pageCount.value
+  const start = (page.value - 1) * normalizedPageCount.value
+  const end = page.value * normalizedPageCount.value
   return sortedRows.value.slice(start, end)
 })
 
 watch(q, () => {
   page.value = 1
 })
+
+watch(pageCount, () => {
+  page.value = 1
+})
 </script>
 
 <template>
   <UContainer class="py-10 max-w-7xl">
-    <div class="flex justify-between items-center mb-6">
+    <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
       <h1 class="text-2xl font-bold">
         Table
       </h1>
-      <UButton
-        to="/"
-        color="neutral"
-        variant="ghost"
-        icon="i-heroicons-arrow-left"
-      >
-        Back to home
-      </UButton>
+      <div class="flex flex-wrap gap-2">
+        <UButton
+          to="/"
+          color="neutral"
+          variant="soft"
+          icon="i-heroicons-home"
+        >
+          Home
+        </UButton>
+        <UButton
+          to="/checkout"
+          color="primary"
+          icon="i-heroicons-credit-card"
+        >
+          Checkout
+        </UButton>
+        <UButton
+          to="/table"
+          color="neutral"
+          variant="outline"
+          icon="i-heroicons-table-cells"
+        >
+          Table
+        </UButton>
+        <UButton
+          to="/store"
+          color="neutral"
+          variant="ghost"
+          icon="i-heroicons-user-circle"
+        >
+          Store Demo
+        </UButton>
+      </div>
     </div>
 
     <div class="flex justify-between items-end mb-4">
@@ -182,9 +213,9 @@ watch(q, () => {
       <div class="flex justify-between items-center px-4 py-3 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800">
         <div class="flex items-center gap-2 text-sm text-gray-500">
           <span>Show</span>
-          <USelect
-            v-model.number="pageCount"
-            :options="[5, 10, 20, 50]"
+          <USelectMenu
+            v-model="pageCount"
+            :items="pageSizeOptions"
             class="w-20"
             size="sm"
           />
@@ -193,7 +224,7 @@ watch(q, () => {
 
         <UPagination
           v-model:page="page"
-          :items-per-page="pageCount"
+          :items-per-page="normalizedPageCount"
           :total="filteredRows.length"
           :active-button="{ variant: 'outline', color: 'success' }"
         />
